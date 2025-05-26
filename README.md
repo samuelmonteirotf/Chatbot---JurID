@@ -48,31 +48,32 @@ Isso iniciará:
 
 ## 📁 Estrutura do Projeto
 
-\`\`\`
+```plaintext
 chatbot-certificado-digital/
-├── 📁 frontend/                 # Vue.js Frontend
-│   ├── 📁 src/
-│   │   ├── 📄 App.vue          # Componente principal
-│   │   ├── 📄 main.js          # Entry point
-│   │   ├── 📄 style.css        # Estilos Tailwind
-│   │   └── 📁 services/
-│   │       └── 📄 chatService.js # Cliente da API
-│   ├── 📄 index.html           # Template HTML
-│   ├── 📄 vite.config.js       # Configuração Vite
-│   ├── 📄 tailwind.config.js   # Configuração Tailwind
-│   └── 📄 package.json         # Dependências frontend
+├── frontend/                  # 💻 Front-end Vue 3 + Vite
+│   ├── src/
+│   │   ├── App.vue            # Componente raiz da aplicação
+│   │   ├── main.js            # Ponto de entrada da aplicação
+│   │   ├── style.css          # Estilos com Tailwind CSS
+│   │   └── services/
+│   │       └── chatService.js # Cliente HTTP para a API do chatbot
+│   ├── index.html             # Template HTML base
+│   ├── vite.config.js         # Configuração do Vite
+│   ├── tailwind.config.js     # Configuração do Tailwind CSS
+│   ├── postcss.config.js      # Configuração do PostCSS
+│   └── package.json           # Dependências e scripts do front-end
 │
-├── 📁 backend/                  # Node.js Backend
-│   ├── 📄 index.js             # Servidor Express
-│   ├── 📄 knowledgeBase.json   # Base de conhecimento
-│   ├── 📄 .env.example         # Variáveis de ambiente
-│   └── 📄 package.json         # Dependências backend
+├── backend/                  # 🧠 Back-end Node.js + Express
+│   ├── index.js               # Servidor principal da API
+│   ├── knowledgeBase.json     # Base de conhecimento do chatbot
+│   ├── .env.example           # Exemplo de variáveis de ambiente
+│   └── package.json           # Dependências e scripts do back-end
 │
-├── 📄 package.json             # Scripts do projeto raiz
-├── 📄 docker-compose.yml       # Orquestração Docker
-├── 📄 Dockerfile              # Build unificado
-└── 📄 README.md               # Este arquivo
-\`\`\`
+├── package.json              # 📦 Scripts e orquestração do monorepo
+├── docker-compose.yml        # 🐳 Orquestração de containers (front + back)
+├── Dockerfile                # Dockerfile para build unificado
+└── README.md                 # 📖 Documentação do projeto
+```
 
 ## 🛠️ Scripts Disponíveis
 
