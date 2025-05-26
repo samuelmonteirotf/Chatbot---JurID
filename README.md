@@ -1,15 +1,15 @@
-# 🤖 Chatbot Certificados Digitais - Full Stack
+# Chatbot Certificados Digitais - Full Stack
 
 **Aplicação completa** para suporte a certificados digitais com frontend Vue.js e backend Node.js integrados em um único projeto.
 
-## 📌 Visão Geral
+## Visão Geral
 
 Este projeto combina:
 - **Frontend Vue.js** - Interface moderna e responsiva
 - **Backend Node.js/Express** - API REST com base de conhecimento inteligente
 - **Arquitetura Monorepo** - Desenvolvimento e deploy simplificados
 
-### 🎯 Funcionalidades
+### Funcionalidades
 
 - ✅ **Chat Inteligente** com respostas contextuais
 - ✅ **Suporte Completo** para certificados A1, A3 e Vidaas
@@ -18,7 +18,7 @@ Este projeto combina:
 - ✅ **Base de Conhecimento** extensiva sobre certificados
 - ✅ **Deploy Unificado** com Docker e Docker Compose
 
-## 🚀 Instalação Rápida
+## Instalação Rápida
 
 ### 1. Clone o projeto
 \`\`\`bash
@@ -46,11 +46,11 @@ Isso iniciará:
 - **Frontend** em http://localhost:3000
 - **Backend** em http://localhost:3001
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```plaintext
 chatbot-certificado-digital/
-├── frontend/                  # 💻 Front-end Vue 3 + Vite
+├── frontend/                  # Front-end Vue 3 + Vite
 │   ├── src/
 │   │   ├── App.vue            # Componente raiz da aplicação
 │   │   ├── main.js            # Ponto de entrada da aplicação
@@ -63,19 +63,19 @@ chatbot-certificado-digital/
 │   ├── postcss.config.js      # Configuração do PostCSS
 │   └── package.json           # Dependências e scripts do front-end
 │
-├── backend/                  # 🧠 Back-end Node.js + Express
+├── backend/                  # Back-end Node.js + Express
 │   ├── index.js               # Servidor principal da API
 │   ├── knowledgeBase.json     # Base de conhecimento do chatbot
 │   ├── .env.example           # Exemplo de variáveis de ambiente
 │   └── package.json           # Dependências e scripts do back-end
 │
-├── package.json              # 📦 Scripts e orquestração do monorepo
-├── docker-compose.yml        # 🐳 Orquestração de containers (front + back)
+├── package.json              # Scripts e orquestração do monorepo
+├── docker-compose.yml        # Orquestração de containers (front + back)
 ├── Dockerfile                # Dockerfile para build unificado
-└── README.md                 # 📖 Documentação do projeto
+└── README.md                 # Documentação do projeto
 ```
 
-## 🛠️ Scripts Disponíveis
+## Scripts Disponíveis
 
 ### Desenvolvimento
 \`\`\`bash
@@ -98,7 +98,7 @@ npm run clean           # Remove node_modules
 npm test                # Executa todos os testes
 \`\`\`
 
-## 🌐 API Endpoints
+## API Endpoints
 
 Base URL: \`http://localhost:3001/api\`
 
@@ -160,7 +160,7 @@ export default defineConfig({
 })
 \`\`\`
 
-## 🐳 Deploy com Docker
+## Deploy com Docker
 
 ### Build e execução
 \`\`\`bash
@@ -183,7 +183,7 @@ docker-compose logs -f
 docker-compose down
 \`\`\`
 
-## 🎨 Customização
+## Customização
 
 ### Adicionando Novas Perguntas
 
@@ -207,7 +207,7 @@ O frontend usa **Tailwind CSS** para estilização:
 - Modifique \`frontend/src/style.css\` para estilos customizados
 - Configure \`frontend/tailwind.config.js\` para temas personalizados
 
-## 📊 Monitoramento
+## Monitoramento
 
 ### Health Check
 \`\`\`bash
@@ -225,7 +225,7 @@ pm2 start backend/index.js --name chatbot
 pm2 logs chatbot
 \`\`\`
 
-## 🔐 Segurança
+## Segurança
 
 - ✅ **Rate Limiting** - 100 requests/15min por IP
 - ✅ **CORS** configurado para origens específicas
@@ -233,7 +233,7 @@ pm2 logs chatbot
 - ✅ **Validação** de entrada em todos endpoints
 - ✅ **Sanitização** de dados de resposta
 
-## 🧪 Testes
+## Testes
 
 \`\`\`bash
 # Executar todos os testes
@@ -246,7 +246,7 @@ cd backend && npm test
 cd frontend && npm test
 \`\`\`
 
-## 📈 Performance
+## Performance
 
 ### Frontend
 - **Vite** para build otimizado
@@ -260,7 +260,7 @@ cd frontend && npm test
 - **Headers** de cache apropriados
 - **Graceful shutdown** implementado
 
-## 🚀 Deploy em Produção
+## Deploy em Produção
 
 ### 1. Build da aplicação
 \`\`\`bash
@@ -281,97 +281,21 @@ npm start
 
 O servidor servirá tanto a API quanto os arquivos estáticos do frontend.
 
-## 📞 Suporte
+## Suporte
 
 - **GitHub Issues**: Para bugs e feature requests
 - **Email**: suporte@seudominio.com
 - **Documentação**: Veja os comentários no código
 
-## 📄 Licença
+## Licença
 
 MIT License - veja o arquivo LICENSE para detalhes.
 
 ---
 
-**🏛️ Desenvolvido para a comunidade jurídica brasileira**
+** Desenvolvido para a comunidade jurídica brasileira**
 
-🔐 **Certificados suportados**: A1, A3, Vidaas  
-⚖️ **Sistemas compatíveis**: PJe, Projudi, e-CAC, Gov.br  
-🚀 **Pronto para produção**: Docker, HTTPS, monitoramento
+ **Certificados suportados**: A1, A3, Vidaas  
+ **Sistemas compatíveis**: PJe, Projudi, e-CAC, Gov.br  
+ **Pronto para produção**: Docker, HTTPS, monitoramento
 \`\`\`
-
-```plaintext file=".gitignore"
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Dependency directories
-node_modules/
-frontend/node_modules/
-backend/node_modules/
-
-# Build outputs
-frontend/dist/
-frontend/build/
-backend/dist/
-backend/build/
-
-# Environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-backend/.env
-frontend/.env
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Temporary files
-*.tmp
-*.temp
-tmp/
-temp/
-
-# Docker
-.dockerignore
-
-# Logs directory
-logs/
-
-# PM2
-.pm2/
-
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
-
-# nyc test coverage
-.nyc_output/
-
-# Cache directories
-.cache/
-.parcel-cache/
