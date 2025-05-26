@@ -1,6 +1,6 @@
 # Chatbot Certificados Digitais - Full Stack
 
-**Aplicação completa** para suporte a certificados digitais com frontend Vue.js e backend Node.js integrados em um único projeto.
+**Aplicação** para suporte a certificados digitais com frontend Vue.js e backend Node.js integrados em um único projeto.
 
 ## Visão Geral
 
