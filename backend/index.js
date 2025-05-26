@@ -11,6 +11,9 @@ const knowledgeBase = require("./knowledgeBase.json")
 
 const app = express()
 
+// ✅ Confia no proxy da Railway (resolve problema do rate-limit com X-Forwarded-For)
+app.set("trust proxy", 1)
+
 // Porta usada: definida pelo Railway via process.env.PORT ou padrão local 3001
 const PORT = process.env.PORT || 3001
 
@@ -31,7 +34,7 @@ app.use("/api/", limiter)
 const corsOptions = {
   origin:
     process.env.NODE_ENV === "production"
-      ? ["https://seudominio.com", "https://www.seudominio.com"]
+      ? ["https://chatbot-jurid-production.up.railway.app"]
       : ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
   credentials: true,
   optionsSuccessStatus: 200,
@@ -40,18 +43,6 @@ app.use(cors(corsOptions))
 
 app.use(bodyParser.json({ limit: "10mb" }))
 app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }))
-
-// Caminho absoluto para o build do frontend dentro do container
-const frontendPath = path.resolve(__dirname, "frontend/dist")
-
-// Servir arquivos estáticos do frontend (em produção)
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(frontendPath))
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"))
-  })
-}
 
 // Logging básico
 app.use((req, res, next) => {
@@ -202,7 +193,7 @@ app.get("/api/stats", (req, res) => {
   }
 })
 
-// 404 para APIs
+// 404 para APIs (isso deve vir antes de servir o frontend)
 app.use("/api/*", (req, res) => {
   res.status(404).json({
     error: "Rota não encontrada",
@@ -217,13 +208,17 @@ app.use("/api/*", (req, res) => {
   })
 })
 
-// Erros globais
-app.use((err, req, res, next) => {
-  console.error("Erro não tratado:", err)
-  res.status(500).json({ error: "Erro interno do servidor", code: "INTERNAL_ERROR" })
-})
+// ✅ Servir frontend no final (fallback SPA)
+if (process.env.NODE_ENV === "production") {
+  const frontendPath = path.resolve(__dirname, "frontend/dist")
+  app.use(express.static(frontendPath))
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"))
+  })
+}
 
-// Start do servidor
+// --------------------- Inicialização ---------------------
+
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`)
   console.log(`📚 Base de conhecimento carregada com ${knowledgeBase.length} itens`)
@@ -234,7 +229,7 @@ app.listen(PORT, () => {
   }
 })
 
-// Shutdown limpo
+// Graceful shutdown
 process.on("SIGTERM", () => {
   console.log("Recebido SIGTERM. Encerrando servidor...")
   process.exit(0)
