@@ -33,7 +33,7 @@ RUN chown -R nodejs:nodejs /app
 USER nodejs
 
 # Expor porta
-EXPOSE $PORT
+EXPOSE 3001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
