@@ -10,22 +10,24 @@ require("dotenv").config()
 const knowledgeBase = require("./knowledgeBase.json")
 
 const app = express()
+
+// Porta usada: definida pelo Railway via process.env.PORT ou padrão local 3001
 const PORT = process.env.PORT || 3001
 
 // Middleware de segurança
 app.use(helmet())
 
-// Rate limiting
+// Rate limiting básico por IP
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por IP por janela de tempo
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: {
     error: "Muitas tentativas. Tente novamente em 15 minutos.",
   },
 })
 app.use("/api/", limiter)
 
-// CORS configuration
+// CORS (ajuste para dev e produção)
 const corsOptions = {
   origin:
     process.env.NODE_ENV === "production"
@@ -34,48 +36,48 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
 }
-
 app.use(cors(corsOptions))
+
 app.use(bodyParser.json({ limit: "10mb" }))
 app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }))
 
-// Servir arquivos estáticos do frontend em produção
+// Caminho absoluto para o build do frontend dentro do container
+const frontendPath = path.resolve(__dirname, "frontend/dist")
+
+// Servir arquivos estáticos do frontend (em produção)
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")))
+  app.use(express.static(frontendPath))
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"))
+  })
 }
 
-// Middleware para logging
+// Logging básico
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`)
   next()
 })
 
-// Função para encontrar a melhor resposta
+// --------------------- Lógica do chatbot ---------------------
+
 function findBestMatch(userMessage) {
-  if (!userMessage || typeof userMessage !== "string") {
-    return null
-  }
+  if (!userMessage || typeof userMessage !== "string") return null
 
-  const normalizedUserMessage = userMessage.toLowerCase().trim()
+  const normalized = userMessage.toLowerCase().trim()
 
-  // Primeiro, procura por palavras-chave específicas
   const keywordMatches = knowledgeBase.filter((item) => {
     const keywords = item.keywords || []
-    return keywords.some((keyword) => normalizedUserMessage.includes(keyword.toLowerCase()))
+    return keywords.some((k) => normalized.includes(k.toLowerCase()))
   })
 
-  if (keywordMatches.length > 0) {
-    // Retorna o primeiro match por palavra-chave (prioridade alta)
-    return keywordMatches[0]
-  }
+  if (keywordMatches.length > 0) return keywordMatches[0]
 
-  // Se não encontrou por palavra-chave, usa similaridade de string
   let bestMatch = null
   let highestSimilarity = 0
 
   knowledgeBase.forEach((item) => {
-    const similarity = stringSimilarity.compareTwoStrings(normalizedUserMessage, item.pergunta.toLowerCase())
-
+    const similarity = stringSimilarity.compareTwoStrings(normalized, item.pergunta.toLowerCase())
     if (similarity > highestSimilarity && similarity > 0.3) {
       highestSimilarity = similarity
       bestMatch = item
@@ -85,8 +87,7 @@ function findBestMatch(userMessage) {
   return bestMatch
 }
 
-// Função para gerar resposta contextual
-function generateContextualResponse(userMessage, match) {
+function generateContextualResponse(message, match) {
   if (!match) {
     return {
       reply:
@@ -110,9 +111,8 @@ function generateContextualResponse(userMessage, match) {
   }
 }
 
-// Rotas da API
+// --------------------- Rotas da API ---------------------
 
-// Health check
 app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
@@ -123,21 +123,13 @@ app.get("/api/health", (req, res) => {
   })
 })
 
-// Endpoint principal do chatbot
 app.post("/api/message", (req, res) => {
   try {
     const { message } = req.body
 
-    if (!message) {
+    if (!message || typeof message !== "string" || message.trim().length === 0) {
       return res.status(400).json({
-        error: "Mensagem é obrigatória",
-        code: "MISSING_MESSAGE",
-      })
-    }
-
-    if (typeof message !== "string" || message.trim().length === 0) {
-      return res.status(400).json({
-        error: "Mensagem deve ser uma string não vazia",
+        error: "Mensagem inválida",
         code: "INVALID_MESSAGE",
       })
     }
@@ -149,43 +141,28 @@ app.post("/api/message", (req, res) => {
       })
     }
 
-    const bestMatch = findBestMatch(message)
-    const response = generateContextualResponse(message, bestMatch)
+    const match = findBestMatch(message)
+    const response = generateContextualResponse(message, match)
 
-    // Log da interação (sem dados sensíveis)
     console.log(`Pergunta: "${message.substring(0, 50)}..." | Confiança: ${response.confidence}`)
 
-    res.json({
-      ...response,
-      timestamp: new Date().toISOString(),
-    })
+    res.json({ ...response, timestamp: new Date().toISOString() })
   } catch (error) {
     console.error("Erro no processamento da mensagem:", error)
-    res.status(500).json({
-      error: "Erro interno do servidor",
-      code: "INTERNAL_ERROR",
-    })
+    res.status(500).json({ error: "Erro interno", code: "INTERNAL_ERROR" })
   }
 })
 
-// Endpoint para listar categorias disponíveis
 app.get("/api/categories", (req, res) => {
   try {
     const categories = [...new Set(knowledgeBase.map((item) => item.categoria))]
-    res.json({
-      categories,
-      total: categories.length,
-    })
-  } catch (error) {
-    console.error("Erro ao buscar categorias:", error)
-    res.status(500).json({
-      error: "Erro interno do servidor",
-      code: "INTERNAL_ERROR",
-    })
+    res.json({ categories, total: categories.length })
+  } catch (err) {
+    console.error("Erro ao buscar categorias:", err)
+    res.status(500).json({ error: "Erro interno", code: "INTERNAL_ERROR" })
   }
 })
 
-// Endpoint para buscar perguntas por categoria
 app.get("/api/questions/:category", (req, res) => {
   try {
     const { category } = req.params
@@ -196,28 +173,19 @@ app.get("/api/questions/:category", (req, res) => {
         pergunta: item.pergunta,
         categoria: item.categoria,
       }))
-
-    res.json({
-      category,
-      questions,
-      total: questions.length,
-    })
-  } catch (error) {
-    console.error("Erro ao buscar perguntas:", error)
-    res.status(500).json({
-      error: "Erro interno do servidor",
-      code: "INTERNAL_ERROR",
-    })
+    res.json({ category, questions, total: questions.length })
+  } catch (err) {
+    console.error("Erro ao buscar perguntas:", err)
+    res.status(500).json({ error: "Erro interno", code: "INTERNAL_ERROR" })
   }
 })
 
-// Endpoint para estatísticas
 app.get("/api/stats", (req, res) => {
   try {
     const totalQuestions = knowledgeBase.length
     const categories = [...new Set(knowledgeBase.map((item) => item.categoria))]
 
-    const categoryStats = categories.map((cat) => ({
+    const stats = categories.map((cat) => ({
       category: cat,
       count: knowledgeBase.filter((item) => item.categoria === cat).length,
     }))
@@ -225,26 +193,16 @@ app.get("/api/stats", (req, res) => {
     res.json({
       totalQuestions,
       totalCategories: categories.length,
-      categoryBreakdown: categoryStats,
+      categoryBreakdown: stats,
       lastUpdated: new Date().toISOString(),
     })
-  } catch (error) {
-    console.error("Erro ao buscar estatísticas:", error)
-    res.status(500).json({
-      error: "Erro interno do servidor",
-      code: "INTERNAL_ERROR",
-    })
+  } catch (err) {
+    console.error("Erro ao buscar estatísticas:", err)
+    res.status(500).json({ error: "Erro interno", code: "INTERNAL_ERROR" })
   }
 })
 
-// Em produção, serve o frontend para todas as rotas não-API
-if (process.env.NODE_ENV === "production") {
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"))
-  })
-}
-
-// Middleware para rotas não encontradas (apenas para APIs)
+// 404 para APIs
 app.use("/api/*", (req, res) => {
   res.status(404).json({
     error: "Rota não encontrada",
@@ -259,16 +217,13 @@ app.use("/api/*", (req, res) => {
   })
 })
 
-// Middleware para tratamento de erros
-app.use((error, req, res, next) => {
-  console.error("Erro não tratado:", error)
-  res.status(500).json({
-    error: "Erro interno do servidor",
-    code: "INTERNAL_ERROR",
-  })
+// Erros globais
+app.use((err, req, res, next) => {
+  console.error("Erro não tratado:", err)
+  res.status(500).json({ error: "Erro interno do servidor", code: "INTERNAL_ERROR" })
 })
 
-// Inicialização do servidor
+// Start do servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`)
   console.log(`📚 Base de conhecimento carregada com ${knowledgeBase.length} itens`)
@@ -279,13 +234,13 @@ app.listen(PORT, () => {
   }
 })
 
-// Graceful shutdown
+// Shutdown limpo
 process.on("SIGTERM", () => {
-  console.log("Recebido SIGTERM. Encerrando servidor graciosamente...")
+  console.log("Recebido SIGTERM. Encerrando servidor...")
   process.exit(0)
 })
 
 process.on("SIGINT", () => {
-  console.log("Recebido SIGINT. Encerrando servidor graciosamente...")
+  console.log("Recebido SIGINT. Encerrando servidor...")
   process.exit(0)
 })
