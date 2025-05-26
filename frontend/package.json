@@ -1,0 +1,32 @@
+{
+  "name": "chatbot-certificado-frontend",
+  "version": "1.0.0",
+  "description": "Frontend Vue.js para chatbot de certificados digitais",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3000",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "keywords": [
+    "chatbot",
+    "certificado-digital",
+    "vue",
+    "frontend"
+  ],
+  "author": "Seu Nome",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "vue": "^3.3.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}
